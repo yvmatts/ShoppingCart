@@ -10,6 +10,15 @@ var usersRouter = require('./routes/users');
 var expressHbs = require('express-handlebars');
 var app = express();
 
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/shop',{ useNewUrlParser: true });
+mongoose.connection.once('open',function(){
+  console.log('Conected');
+}).on('error',function(error){
+  console.log(error);
+});
+
 // view engine setup
 app.engine('.hbs',expressHbs({defaultLayout:'layout',extname:'.hbs'}));
 app.set('view engine', '.hbs');
