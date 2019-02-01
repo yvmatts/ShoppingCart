@@ -3,9 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var session = require('express-session');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var expressHbs = require('express-handlebars');
 var app = express();
@@ -14,7 +14,7 @@ var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/shop',{ useNewUrlParser: true });
 mongoose.connection.once('open',function(){
-  console.log('Conected');
+  console.log('Connected');
 }).on('error',function(error){
   console.log(error);
 });
@@ -27,6 +27,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({secret:'shopping'}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
