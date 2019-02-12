@@ -7,7 +7,7 @@ var csrf = require('csurf');
 const csrfProtection = csrf();
 router.use(csrfProtection);
 
-router.get('/', function(req, res, next) {
+router.get('/movies', function(req, res, next) {
 
     Product.find(function(error,docs) {
      var productChunks = [];
@@ -19,16 +19,5 @@ router.get('/', function(req, res, next) {
    });
 });
 
-router.get('/user/signup',csrfProtection,function(req,res,next){
-
-    res.render('../views/user/signup',{ csrfToken: req.csrfToken() });
-
-});
-
-router.post('/user/signup',csrfProtection,function(req,res,nect){
-
-    res.redirect('/')
-
-});
 
 module.exports = router;

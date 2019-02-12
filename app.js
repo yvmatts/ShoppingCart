@@ -4,8 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
-
+var passport = require('passport');
+var key = require('./config/keys');
+var flash = require('connect-flash');
+var passportConfig = require('./config/passport-setup');
+var cookieSession = require('cookie-session');
 var indexRouter = require('./routes/index');
+var authRouter = require('./routes/auth');
 
 var expressHbs = require('express-handlebars');
 var app = express();
@@ -19,6 +24,14 @@ mongoose.connection.once('open',function(){
   console.log(error);
 });
 
+app.use(cookieSession({
+  maxAge:1000*60*60,
+  keys:[key.session.secret]
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 // view engine setup
 app.engine('.hbs',expressHbs({defaultLayout:'layout',extname:'.hbs'}));
 app.set('view engine', '.hbs');
@@ -28,9 +41,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({secret:'shopping'}));
+app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/home', indexRouter);
+app.use('/', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
