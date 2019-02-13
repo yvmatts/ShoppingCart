@@ -3,59 +3,72 @@ var router = express.Router();
 var Product = require('../models/product');
 var csrf = require('csurf');
 var User = require('../models/user');
-const bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt-nodejs');
 var passport = require('passport');
 var bodyParser = require('body-parser');
-/* GET home page. */
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
-const csrfProtection = csrf();
+var csrfProtection = csrf();
+const { check, validationResult } = require('express-validator/check');
+
+
+
 router.use(csrfProtection);
 
-function encryptPassword(password){
-  return bcrypt.hashSync(password,bcrypt.genSaltSync(5),null);
-};
 
 
+/* GET Login page. */
 router.get('/',csrfProtection,function(req,res,next){
 
     res.render('../views/user/signin',{ csrfToken: req.csrfToken() });
 
 });
 
-router.post('/', passport.authenticate('local', { failureRedirect: '/signup' }),
+/* POST Login form data. */
+router.post('/', passport.authenticate("local", { failureRedirect: '/signup' }),
   function(req, res) {
     res.redirect('/home/movies');
   });
 
 
-
+/* GET Sign up page. */
 router.get('/signup',csrfProtection,function(req,res,next){
 
     res.render('../views/user/signup',{ csrfToken: req.csrfToken() });
 
 });
 
+/* POST Sign up form data. */
 router.post('/signup',csrfProtection,function(req,res,next){
 
-    User.findOne({username:req.username,email:req.email}).then(function(result){
-        if(!result){
-          var user = new User({
-            username:req.body.username,
-            email:req.body.email,
-            password:req.body.password
-          });
-          user.save().then(function(){
-            console.log(encryptPassword(req.body.password));
-            res.redirect('/signup');
-          });
+    User.findOne({username:req.body.username,email:req.body.email}).then(function(result){
+        if(result === null){
+          console.log(result);
+          var user = new User();
+            user.username = req.body.username,
+            user.email = req.body.email,
+            user.password = user.encryptPassword(req.body.password);
+
+          user.save().then(function(err){
+            console.log("Saved NewUser");
+              res.redirect('/');
+           });
         }
         else{
-          console.log(encryptPassword(req.body.password));
-          res.redirect('/signup');
+          console.log(result + "Here");
+          res.redirect('/');
         }
     });
 
 });
 
-//$2a$05$TEzUWxANGa2C/qHSX/q73.pnFC8jt9BYzFVRxXr32sVTIau9CVGYK
+
+/* GET Login page. */
+router.get('/signout',csrfProtection,function(req,res,next){
+
+    req.logout();
+    res.redirect('/');
+
+});
+
+
 module.exports = router;

@@ -15,7 +15,8 @@ router.get('/movies', function(req, res, next) {
      for (var i = 0; i < docs.length; i += chunkSize) {
          productChunks.push(docs.slice(i, i + chunkSize));
      }
-     res.render('shop/index', { title: 'Shopping Cart', products: productChunks });
+     console.log(req.user);
+     res.render('shop/index', { title: 'Shopping Cart', products: productChunks});
    });
 });
 
